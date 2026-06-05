@@ -48,7 +48,7 @@ body {
 .timeline {
   position:relative;
   margin:0 60px;
-  border-top:2px solid #aaa; /* mais visível */
+  border-top:2px solid #aaa;
   height:140px;
 }
 
@@ -58,7 +58,7 @@ body {
   padding:8px 12px;
   border-radius:6px;
   font-size:12px;
-  box-shadow:0px 2px 6px rgba(0,0,0,0.4); /* efeito profissional */
+  box-shadow:0px 2px 6px rgba(0,0,0,0.4);
 }
 
 .critical { background:#e74c3c; }
@@ -81,11 +81,32 @@ body {
   border-top:3px solid #00c3ff;
 }
 
-/* LEGEND */
+/* LEGEND (NOVA LIMPA) */
 .legend {
-  margin:10px 60px;
-  font-size:11px;
+  margin:15px 60px;
+  display:flex;
+  gap:25px;
+  font-size:12px;
   color:#aaa;
+}
+
+.legend-item {
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.legend-line {
+  width:30px;
+  height:0;
+}
+
+.actual-line {
+  border-top:3px solid #00c3ff;
+}
+
+.expected-line {
+  border-top:2px dashed #888;
 }
 
 /* NOW */
@@ -94,7 +115,7 @@ body {
   top:-10px;
   height:140px;
   border-left:3px solid #00c3ff;
-  box-shadow:0 0 8px #00c3ff; /* destaque */
+  box-shadow:0 0 8px #00c3ff;
 }
 
 .now-label {
@@ -177,9 +198,7 @@ WD05 | 🔴 Closing at Risk | Gap: +17h
 <!-- TASKS -->
 <div class='block delayed' style='left:5%; top:30px;'>Pre-Close</div>
 
-<div class='block critical' style='left:20%; top:30px;'>
-Data Load
-</div>
+<div class='block critical' style='left:20%; top:30px;'>Data Load</div>
 
 <div class='block critical' style='left:40%; top:30px;'>
 Accruals<br>
@@ -204,10 +223,17 @@ Consolidation<br>
 
 </div>
 
-<!-- LEGEND -->
+<!-- LEGEND LIMPA -->
 <div class="legend">
-  <span style="border-bottom:3px solid #00c3ff;">Actual</span> |
-  <span style="border-bottom:2px dashed #888;">Expected</span>
+  <div class="legend-item">
+    <span class="legend-line actual-line"></span>
+    <span>Actual</span>
+  </div>
+
+  <div class="legend-item">
+    <span class="legend-line expected-line"></span>
+    <span>Expected</span>
+  </div>
 </div>
 
 <!-- PHASE -->
