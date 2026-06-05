@@ -11,11 +11,13 @@ body {
   margin:0;
 }
 
+/* HEADER */
 .header {
   padding:20px;
   font-size:22px;
 }
 
+/* KPI */
 .kpis {
   display:flex;
   gap:15px;
@@ -57,6 +59,7 @@ body {
   font-size:12px;
 }
 
+/* COLORS */
 .critical { background:#e74c3c; }
 .delayed { background:#f39c12; }
 .normal { background:#2c3e50; }
@@ -77,18 +80,25 @@ body {
   border-top:3px solid #00c3ff;
 }
 
+/* LEGEND */
+.legend {
+  margin:10px 60px;
+  font-size:11px;
+  color:#aaa;
+}
+
 /* NOW */
 .now {
   position:absolute;
   top:-10px;
-  height:140px; /* NÃO invade abaixo */
+  height:140px;
   border-left:3px solid #00c3ff;
 }
 
 .now-label {
   position:absolute;
   top:-30px;
-  left:-15px;
+  left:-12px;
   color:#00c3ff;
   font-size:12px;
 }
@@ -102,12 +112,12 @@ body {
   color:#aaa;
 }
 
-/* SEPARAÇÃO GRANDE (ESSENCIAL) */
+/* SECTION GAP */
 .section {
   margin-top:60px;
 }
 
-/* ACTION */
+/* ACTION BOX */
 .actions {
   margin:0 60px;
   background:#111;
@@ -131,6 +141,7 @@ button {
 
 <body>
 
+<!-- HEADER -->
 <div class='header'>
 SMART CLOSING – EXECUTION MONITOR  
 <br>
@@ -160,19 +171,40 @@ WD05 | 🔴 Closing at Risk | Gap: +17h
 <!-- TIMELINE -->
 <div class='timeline'>
 
+<!-- TASKS -->
 <div class='block delayed' style='left:5%; top:30px;'>Pre-Close</div>
-<div class='block critical' style='left:20%; top:30px;'>Data Load</div>
-<div class='block critical' style='left:40%; top:30px;'>Accruals</div>
-<div class='block delayed' style='left:60%; top:30px;'>Consolidation</div>
+
+<div class='block critical' style='left:20%; top:30px;'>
+Data Load
+</div>
+
+<div class='block critical' style='left:40%; top:30px;'>
+Accruals<br>
+<span style="font-size:10px;">Blocked</span>
+</div>
+
+<div class='block delayed' style='left:60%; top:30px;'>
+Consolidation<br>
+<span style="font-size:10px;">+2h delay</span>
+</div>
+
 <div class='block normal' style='left:85%; top:30px;'>Reporting</div>
 
+<!-- EXPECTED vs ACTUAL -->
 <div class='expected'></div>
 <div class='actual'></div>
 
+<!-- NOW -->
 <div class='now' style='left:65%;'>
-  <div class='now-label'>NOW<br>WD05</div>
+  <div class='now-label'>● NOW<br>WD05</div>
 </div>
 
+</div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <span style="border-bottom:2px solid #00c3ff;">Actual</span> |
+  <span style="border-bottom:2px dashed #888;">Expected</span>
 </div>
 
 <!-- PHASE -->
@@ -182,16 +214,22 @@ WD05 | 🔴 Closing at Risk | Gap: +17h
 <span>Pós-Fechamento</span>
 </div>
 
-<!-- NOVA SEÇÃO (RESOLVE O BUG) -->
+<!-- ACTION SECTION -->
 <div class="section">
 
 <div class="actions">
-<h3>Where to act now</h3>
+<h3>🚨 Where to act now</h3>
+
+<p style="color:#aaa;">
+Main risk driven by consolidation delay impacting final reporting timeline.
+</p>
+
 <ul>
   <li>Accruals → Blocked</li>
   <li>Consolidation → Delayed</li>
   <li>Escalate Data Load</li>
 </ul>
+
 </div>
 
 <button>Go to Smart Closing Dashboard</button>
@@ -200,4 +238,3 @@ WD05 | 🔴 Closing at Risk | Gap: +17h
 
 </body>
 </html>
-``
