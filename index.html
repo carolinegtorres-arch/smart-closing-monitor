@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Smart Closing Monitor</title>
+<style>
+body {background:#0b0f14;color:white;font-family:Arial;}
+.header {padding:20px;font-size:24px;}
+.timeline {position:relative;margin:40px;border-top:2px solid #555;height:240px;}
+.axis {display:flex;justify-content:space-between;margin:0 40px;color:#888;font-size:12px;}
+.block {position:absolute;padding:10px;border-radius:6px;font-size:12px;}
+.critical {background:#e74c3c;}
+.delayed {background:#f39c12;}
+.normal {background:#2c3e50;}
+.now {position:absolute; border-left:3px solid #17c0eb; height:260px;}
+</style>
+</head>
+
+<body>
+
+<div class='header'>
+SMART CLOSING – EXECUTION MONITOR  
+<br>
+🔴 At Risk | Actual: 48% | Expected: 65% | Gap: +17h
+</div>
+
+<div class='axis'>
+<span>WD-3</span><span>WD-2</span><span>WD-1</span><span>WD1</span><span>WD2</span><span>WD3</span><span>WD4</span><span>WD5</span>
+</div>
+
+<div class='timeline'>
+
+<div class='block delayed' style='left:5%; top:40px;'>Pre-Close Checks</div>
+<div class='block critical' style='left:20%; top:40px;'>Data Load</div>
+<div class='block critical' style='left:40%; top:40px;'>Accruals</div>
+<div class='block delayed' style='left:60%; top:40px;'>Consolidation</div>
+<div class='block normal' style='left:80%; top:40px;'>Reporting</div>
+
+<div class='now' style='left:65%; top:0;'>NOW<br>WD05</div>
+
+</div>
+
+</body>
+</html>
