@@ -32,21 +32,24 @@ body {
   background:#e74c3c;
 }
 
+/* AXIS */
 .axis {
   display:flex;
   justify-content:space-between;
-  margin:20px 40px 10px 40px;
+  margin:20px 60px 10px 60px;
   color:#888;
   font-size:12px;
 }
 
+/* TIMELINE */
 .timeline {
   position:relative;
-  margin:0 40px 80px 40px;
+  margin:0 60px;
   border-top:2px solid #777;
   height:140px;
 }
 
+/* TASKS */
 .block {
   position:absolute;
   padding:8px 12px;
@@ -58,10 +61,27 @@ body {
 .delayed { background:#f39c12; }
 .normal { background:#2c3e50; }
 
+/* EXPECTED */
+.expected {
+  position:absolute;
+  top:85px;
+  width:100%;
+  border-top:2px dashed #888;
+}
+
+/* ACTUAL */
+.actual {
+  position:absolute;
+  top:100px;
+  width:65%;
+  border-top:3px solid #00c3ff;
+}
+
+/* NOW */
 .now {
   position:absolute;
   top:-10px;
-  height:150px;
+  height:140px; /* NÃO invade abaixo */
   border-left:3px solid #00c3ff;
 }
 
@@ -73,37 +93,31 @@ body {
   font-size:12px;
 }
 
-.expected {
-  position:absolute;
-  top:90px;
-  width:100%;
-  border-top:2px dashed #888;
-}
-
-.actual {
-  position:absolute;
-  top:105px;
-  width:65%;
-  border-top:3px solid #00c3ff;
-}
-
+/* PHASE */
 .phase {
   display:flex;
   justify-content:space-between;
-  margin:10px 40px;
+  margin:20px 60px;
   font-size:11px;
   color:#aaa;
 }
 
+/* SEPARAÇÃO GRANDE (ESSENCIAL) */
+.section {
+  margin-top:60px;
+}
+
+/* ACTION */
 .actions {
-  margin:20px 40px;
+  margin:0 60px;
   background:#111;
   padding:20px;
   border-radius:10px;
 }
 
+/* BUTTON */
 button {
-  margin:20px 40px 40px 40px;
+  margin:30px 60px 50px 60px;
   padding:14px 22px;
   font-size:15px;
   background:#00c3ff;
@@ -123,6 +137,7 @@ SMART CLOSING – EXECUTION MONITOR
 WD05 | 🔴 Closing at Risk | Gap: +17h
 </div>
 
+<!-- KPI -->
 <div class="kpis">
   <div class="kpi">Expected: 65%</div>
   <div class="kpi">Actual: 48%</div>
@@ -130,6 +145,7 @@ WD05 | 🔴 Closing at Risk | Gap: +17h
   <div class="kpi red">Status: At Risk</div>
 </div>
 
+<!-- AXIS -->
 <div class='axis'>
 <span>WD-3</span>
 <span>WD-2</span>
@@ -141,31 +157,33 @@ WD05 | 🔴 Closing at Risk | Gap: +17h
 <span>WD5</span>
 </div>
 
+<!-- TIMELINE -->
 <div class='timeline'>
 
-<!-- Tasks -->
 <div class='block delayed' style='left:5%; top:30px;'>Pre-Close</div>
 <div class='block critical' style='left:20%; top:30px;'>Data Load</div>
 <div class='block critical' style='left:40%; top:30px;'>Accruals</div>
 <div class='block delayed' style='left:60%; top:30px;'>Consolidation</div>
 <div class='block normal' style='left:85%; top:30px;'>Reporting</div>
 
-<!-- Expected vs Actual -->
 <div class='expected'></div>
 <div class='actual'></div>
 
-<!-- NOW -->
 <div class='now' style='left:65%;'>
   <div class='now-label'>NOW<br>WD05</div>
 </div>
 
 </div>
 
+<!-- PHASE -->
 <div class="phase">
 <span>Pré-Fechamento</span>
 <span>Fechamento</span>
 <span>Pós-Fechamento</span>
 </div>
+
+<!-- NOVA SEÇÃO (RESOLVE O BUG) -->
+<div class="section">
 
 <div class="actions">
 <h3>Where to act now</h3>
@@ -178,5 +196,8 @@ WD05 | 🔴 Closing at Risk | Gap: +17h
 
 <button>Go to Smart Closing Dashboard</button>
 
+</div>
+
 </body>
 </html>
+``
