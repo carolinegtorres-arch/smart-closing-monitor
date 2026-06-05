@@ -19,12 +19,12 @@ body {
 .kpis {
   display:flex;
   gap:15px;
-  padding:20px;
+  padding:0 20px 20px 20px;
 }
 
 .kpi {
   background:#111;
-  padding:15px;
+  padding:12px 15px;
   border-radius:8px;
 }
 
@@ -35,77 +35,77 @@ body {
 .axis {
   display:flex;
   justify-content:space-between;
-  margin:0 40px;
-  margin-top:20px;
-  margin-bottom:-20px;
+  margin:20px 40px 10px 40px;
   color:#888;
   font-size:12px;
 }
 
 .timeline {
   position:relative;
-  margin:40px;
-  border-top:2px solid #555;
-  height:260px;
+  margin:0 40px 80px 40px;
+  border-top:2px solid #777;
+  height:140px;
 }
 
 .block {
   position:absolute;
-  padding:10px;
+  padding:8px 12px;
   border-radius:6px;
   font-size:12px;
 }
 
-.critical {
-  background:#e74c3c;
-}
-
-.delayed {
-  background:#f39c12;
-}
-
-.normal {
-  background:#2c3e50;
-}
+.critical { background:#e74c3c; }
+.delayed { background:#f39c12; }
+.normal { background:#2c3e50; }
 
 .now {
   position:absolute;
+  top:-10px;
+  height:150px;
   border-left:3px solid #00c3ff;
-  height:260px;
+}
+
+.now-label {
+  position:absolute;
+  top:-30px;
+  left:-15px;
+  color:#00c3ff;
+  font-size:12px;
 }
 
 .expected {
   position:absolute;
-  top:70px;
+  top:90px;
   width:100%;
   border-top:2px dashed #888;
 }
 
 .actual {
   position:absolute;
-  top:90px;
-  width:70%;
+  top:105px;
+  width:65%;
   border-top:3px solid #00c3ff;
 }
 
-.label {
-  position:absolute;
-  top:210px;
+.phase {
+  display:flex;
+  justify-content:space-between;
+  margin:10px 40px;
   font-size:11px;
   color:#aaa;
 }
 
 .actions {
-  margin:40px;
+  margin:20px 40px;
   background:#111;
   padding:20px;
   border-radius:10px;
 }
 
 button {
-  margin:40px;
-  padding:15px 25px;
-  font-size:16px;
+  margin:20px 40px 40px 40px;
+  padding:14px 22px;
+  font-size:15px;
   background:#00c3ff;
   border:none;
   border-radius:8px;
@@ -123,7 +123,6 @@ SMART CLOSING – EXECUTION MONITOR
 WD05 | 🔴 Closing at Risk | Gap: +17h
 </div>
 
-<!-- KPI -->
 <div class="kpis">
   <div class="kpi">Expected: 65%</div>
   <div class="kpi">Actual: 48%</div>
@@ -131,7 +130,6 @@ WD05 | 🔴 Closing at Risk | Gap: +17h
   <div class="kpi red">Status: At Risk</div>
 </div>
 
-<!-- Timeline eixo -->
 <div class='axis'>
 <span>WD-3</span>
 <span>WD-2</span>
@@ -143,34 +141,32 @@ WD05 | 🔴 Closing at Risk | Gap: +17h
 <span>WD5</span>
 </div>
 
-<!-- Timeline -->
 <div class='timeline'>
+
+<!-- Tasks -->
+<div class='block delayed' style='left:5%; top:30px;'>Pre-Close</div>
+<div class='block critical' style='left:20%; top:30px;'>Data Load</div>
+<div class='block critical' style='left:40%; top:30px;'>Accruals</div>
+<div class='block delayed' style='left:60%; top:30px;'>Consolidation</div>
+<div class='block normal' style='left:85%; top:30px;'>Reporting</div>
 
 <!-- Expected vs Actual -->
 <div class='expected'></div>
 <div class='actual'></div>
 
-<!-- Tasks -->
-<div class='block delayed' style='left:5%; top:40px;'>Pre-Close Checks</div>
-<div class='block critical' style='left:20%; top:40px;'>Data Load</div>
-<div class='block critical' style='left:40%; top:40px;'>Accruals</div>
-<div class='block delayed' style='left:60%; top:40px;'>Consolidation</div>
-<div class='block normal' style='left:80%; top:40px;'>Reporting</div>
-
 <!-- NOW -->
 <div class='now' style='left:65%;'>
-  <div style="position:absolute; top:-25px; color:#00c3ff; font-size:12px;">
-    NOW<br>WD05
-  </div>
-
-<!-- Labels -->
-<div class='label' style='left:5%;'>Pré-Fechamento</div>
-<div class='label' style='left:40%;'>Fechamento</div>
-<div class='label' style='left:75%;'>Pós-Fechamento</div>
+  <div class='now-label'>NOW<br>WD05</div>
+</div>
 
 </div>
 
-<!-- Actions -->
+<div class="phase">
+<span>Pré-Fechamento</span>
+<span>Fechamento</span>
+<span>Pós-Fechamento</span>
+</div>
+
 <div class="actions">
 <h3>Where to act now</h3>
 <ul>
@@ -180,14 +176,7 @@ WD05 | 🔴 Closing at Risk | Gap: +17h
 </ul>
 </div>
 
-<!-- Button -->
 <button>Go to Smart Closing Dashboard</button>
 
 </body>
 </html>
-
-<div style="margin:40px;">
-  <button style="padding:15px 25px; font-size:16px; background:#00c3ff; border:none; border-radius:8px;">
-    Go to Smart Closing Dashboard
-  </button>
-</div>
