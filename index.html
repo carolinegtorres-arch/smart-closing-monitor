@@ -1,34 +1,116 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Smart Closing Monitor</title>
-<style>
-body {background:#0b0f14;color:white;font-family:Arial;}
-.header {padding:20px;font-size:24px;}
-  <div style="padding:20px; display:flex; gap:20px;">
-  <div style="background:#111;padding:15px;border-radius:8px;">Expected: 65%</div>
-  <div style="background:#111;padding:15px;border-radius:8px;">Actual: 48%</div>
-  <div style="background:#111;padding:15px;border-radius:8px;">Gap: +17h</div>
-  <div style="background:#e74c3c;padding:15px;border-radius:8px;">Status: At Risk</div>
-</div>
+<title>Smart Closing – Command Center</title>
 
-.timeline {position:relative;margin:40px;border-top:2px solid #555;height:240px;}
-  <div style="margin:40px; background:#111; padding:20px; border-radius:10px;">
-<h3>Where to act now</h3>
-<ul>
-  <li>Accruals → Blocked</li>
-  <li>Consolidation → Delayed</li>
-  <li>Escalate Data Load</li>
-</ul>
-</div>
-``
-.axis {display:flex;justify-content:space-between;margin:0 40px;color:#888;font-size:12px;}
-.block {position:absolute;padding:10px;border-radius:6px;font-size:12px;}
-.critical {background:#e74c3c;}
-.delayed {background:#f39c12;}
-.normal {background:#2c3e50;}
-.now {position:absolute; border-left:3px solid #17c0eb; height:260px;}
+<style>
+body {
+  background:#0b0f14;
+  color:white;
+  font-family:Arial;
+  margin:0;
+}
+
+.header {
+  padding:20px;
+  font-size:22px;
+}
+
+.kpis {
+  display:flex;
+  gap:15px;
+  padding:20px;
+}
+
+.kpi {
+  background:#111;
+  padding:15px;
+  border-radius:8px;
+}
+
+.kpi.red {
+  background:#e74c3c;
+}
+
+.axis {
+  display:flex;
+  justify-content:space-between;
+  margin:0 40px;
+  color:#888;
+  font-size:12px;
+}
+
+.timeline {
+  position:relative;
+  margin:40px;
+  border-top:2px solid #555;
+  height:260px;
+}
+
+.block {
+  position:absolute;
+  padding:10px;
+  border-radius:6px;
+  font-size:12px;
+}
+
+.critical {
+  background:#e74c3c;
+}
+
+.delayed {
+  background:#f39c12;
+}
+
+.normal {
+  background:#2c3e50;
+}
+
+.now {
+  position:absolute;
+  border-left:3px solid #00c3ff;
+  height:260px;
+}
+
+.expected {
+  position:absolute;
+  top:110px;
+  width:100%;
+  border-top:2px dashed #888;
+}
+
+.actual {
+  position:absolute;
+  top:130px;
+  width:70%;
+  border-top:3px solid #00c3ff;
+}
+
+.label {
+  position:absolute;
+  top:210px;
+  font-size:11px;
+  color:#aaa;
+}
+
+.actions {
+  margin:40px;
+  background:#111;
+  padding:20px;
+  border-radius:10px;
+}
+
+button {
+  margin:40px;
+  padding:15px 25px;
+  font-size:16px;
+  background:#00c3ff;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
 </style>
+
 </head>
 
 <body>
@@ -37,32 +119,68 @@ body {background:#0b0f14;color:white;font-family:Arial;}
 SMART CLOSING – EXECUTION MONITOR  
 <br>
 WD05 | 🔴 Closing at Risk | Gap: +17h
-
-
-<div class='axis'>
-<span>WD-3</span><span>WD-2</span><span>WD-1</span><span>WD1</span><span>WD2</span><span>WD3</span><span>WD4</span><span>WD5</span>
 </div>
 
+<!-- KPI -->
+<div class="kpis">
+  <div class="kpi">Expected: 65%</div>
+  <div class="kpi">Actual: 48%</div>
+  <div class="kpi">Gap: +17h</div>
+  <div class="kpi red">Status: At Risk</div>
+</div>
+
+<!-- Timeline eixo -->
+<div class='axis'>
+<span>WD-3</span>
+<span>WD-2</span>
+<span>WD-1</span>
+<span>WD1</span>
+<span>WD2</span>
+<span>WD3</span>
+<span>WD4</span>
+<span>WD5</span>
+</div>
+
+<!-- Timeline -->
 <div class='timeline'>
 
+<!-- Expected vs Actual -->
+<div class='expected'></div>
+<div class='actual'></div>
+
+<!-- Tasks -->
 <div class='block delayed' style='left:5%; top:40px;'>Pre-Close Checks</div>
 <div class='block critical' style='left:20%; top:40px;'>Data Load</div>
 <div class='block critical' style='left:40%; top:40px;'>Accruals</div>
 <div class='block delayed' style='left:60%; top:40px;'>Consolidation</div>
 <div class='block normal' style='left:80%; top:40px;'>Reporting</div>
 
-<div class='now' style='left:65%; top:0;'>NOW<br>WD05</div>
+<!-- NOW -->
+<div class='now' style='left:65%;'></div>
+
+<!-- Labels -->
+<div class='label' style='left:5%;'>Pré-Fechamento</div>
+<div class='label' style='left:40%;'>Fechamento</div>
+<div class='label' style='left:75%;'>Pós-Fechamento</div>
 
 </div>
+
+<!-- Actions -->
+<div class="actions">
+<h3>Where to act now</h3>
+<ul>
+  <li>Accruals → Blocked</li>
+  <li>Consolidation → Delayed</li>
+  <li>Escalate Data Load</li>
+</ul>
+</div>
+
+<!-- Button -->
+<button>Go to Smart Closing Dashboard</button>
 
 </body>
 </html>
-<div style="padding:20px; display:flex; gap:20px;">
-  <div style="background:#111;padding:15px;border-radius:8px;">Expected: 65%</div>
-  <div style="background:#111;padding:15px;border-radius:8px;">Actual: 48%</div>
-  <div style="background:#111;padding:15px;border-radius:8px;">Gap: +17h</div>
-  <div style="background:#e74c3c;padding:15px;border-radius:8px;">Status: At Risk</div>
-</div>
+
 <div style="margin:40px;">
   <button style="padding:15px 25px; font-size:16px; background:#00c3ff; border:none; border-radius:8px;">
     Go to Smart Closing Dashboard
