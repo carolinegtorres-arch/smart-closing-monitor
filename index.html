@@ -148,21 +148,6 @@ fetch("monitor_data.csv")
     rows.forEach(row => {
       const parts = row.split(",");
 
-      if (parts.length < 3) return;
-
-      const process = parts[0].trim();
-      const wd = Number(parts[1]);
-      const expected = Number(parts[2]);
-
-      if (!process || isNaN(wd) || isNaN(expected)) return;
-
-      parsed.push({
-        process,
-        WD: wd,
-        expected
-      });
-    });
-
     // ✅ lógica WD
     const data = Object.values(
       parsed
