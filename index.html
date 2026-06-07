@@ -1,55 +1,57 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Smart Closing Monitor</title>
+  <title>Smart Closing Monitor</title>
 
-<style>
-body {
-  background:#0b0f14;
-  color:white;
-  font-family:Arial;
-  padding:20px;
-}
+  <style>
+    body {
+      background:#0b0f14;
+      color:white;
+      font-family:Arial;
+      padding:20px;
+    }
 
-.kpi {
-  font-size:24px;
-  margin-bottom:30px;
-}
+    h1 { margin-bottom:20px; }
 
-.timeline {
-  position:relative;
-  height:120px;
-  border-top:2px solid #888;
-  margin-bottom:40px;
-}
+    .kpi {
+      font-size:24px;
+      margin-bottom:30px;
+    }
 
-.progress {
-  position:absolute;
-  top:-2px;
-  height:3px;
-  background:#00c3ff;
-  width:0%;
-}
+    .timeline {
+      position:relative;
+      height:120px;
+      border-top:2px solid #888;
+      margin-bottom:40px;
+    }
 
-.now {
-  position:absolute;
-  top:-10px;
-  border-left:3px solid #00c3ff;
-  height:100px;
-}
+    .progress {
+      position:absolute;
+      top:-2px;
+      height:3px;
+      background:#00c3ff;
+      width:0%;
+    }
 
-.label {
-  position:absolute;
-  top:15px;
-  font-size:12px;
-}
+    .now {
+      position:absolute;
+      top:-10px;
+      border-left:3px solid #00c3ff;
+      height:100px;
+    }
 
-.card {
-  background:#111;
-  padding:10px;
-  margin-bottom:10px;
-}
-</style>
+    .label {
+      position:absolute;
+      top:15px;
+      font-size:12px;
+    }
+
+    .card {
+      background:#111;
+      padding:10px;
+      margin-bottom:10px;
+    }
+  </style>
 </head>
 
 <body>
@@ -63,12 +65,11 @@ body {
   <div id="now" class="now"></div>
 
   <div class="label" style="left:0%">WD-3</div>
-  <div class="label" style="left:15%">WD-1</div>
-  <div class="label" style="left:30%">WD1</div>
-  <div class="label" style="left:45%">WD2</div>
-  <div class="label" style="left:60%">WD3</div>
-  <div class="label" style="left:75%">WD4</div>
-  <div class="label" style="left:90%">WD5</div>
+  <div class="label" style="left:20%">WD-1</div>
+  <div class="label" style="left:40%">WD1</div>
+  <div class="label" style="left:55%">WD2</div>
+  <div class="label" style="left:70%">WD3</div>
+  <div class="label" style="left:85%">WD4</div>
 </div>
 
 <div id="cards"></div>
@@ -77,29 +78,17 @@ body {
 
 const CURRENT_WD = 3;
 
-// ✅ mapa timeline FIXO
+// mapa posição timeline
 function wdToPosition(wd){
   const map = {
-    "-7":0,
-    "-5":5,
-    "-3":10,
-    "-2":15,
-    "-1":20,
-    "1":30,
-    "2":45,
-    "3":60,
-    "4":70,
-    "5":80,
-    "6":85,
-    "7":88,
-    "8":90,
-    "9":92,
-    "10":94,
-    "11":96,
-    "12":97,
-    "13":98,
-    "14":99,
-    "20":100
+    "-3":0,
+    "-2":5,
+    "-1":10,
+    "1":40,
+    "2":55,
+    "3":70,
+    "4":85,
+    "5":95
   };
   return map[wd] ?? 0;
 }
@@ -108,60 +97,62 @@ fetch("monitor_data.csv")
 .then(r=>r.text())
 .then(text=>{
 
-  const rows = text.trim().split(/\r?\n/);
+  const rows = text.trim().split(/\\r?\\n/);
   rows.shift();
 
-  let data = [];
+  const data = [];
 
   rows.forEach(row=>{
-    const p = row.split(",");
-    if(p.length<3) return;
+    const parts = row.split(",");
 
-    data.push({
-      process:p[0].trim(),
-      wd:Number(p[1]),
-      expected:Number(p[2])
-    });
+    if(parts.length < 3) return;
+
+    const process = parts[0].trim();
+    const wd = Number(parts[1]);
+    const expected = Number(parts[2]);
+
+    if(isNaN(wd) || isNaN(expected)) return;
+
+    data.push({process, wd, expected});
   });
 
-  // pegar último WD por processo
-  let latest={};
+  const latest = {};
 
   data.forEach(d=>{
-    if(d.wd<=CURRENT_WD){
-      if(!latest[d.process] || d.wd>latest[d.process].wd){
-        latest[d.process]=d;
+    if(d.wd <= CURRENT_WD){
+      if(!latest[d.process] || d.wd > latest[d.process].wd){
+        latest[d.process] = d;
       }
     }
   });
 
-  let final = Object.values(latest);
+  const final = Object.values(latest);
 
-  // ✅ KPI correto
-  let global = Math.round(
-    final.reduce((s,d)=>s+d.expected,0)/final.length
+  if(final.length === 0){
+    document.getElementById("kpi").innerText = "Sem dados";
+    return;
+  }
+
+  const global = Math.round(
+    final.reduce((s,d)=>s+d.expected,0) / final.length
   );
 
   document.getElementById("kpi").innerText =
-    "Expected: "+global+"%";
-
-  // ✅ ✅ CORREÇÃO PRINCIPAL AQUI
-  let progressPos = wdToPosition(CURRENT_WD);
+    "Expected: " + global + "%";
 
   document.getElementById("progress").style.width =
-    progressPos + "%";
+    global + "%";
 
   document.getElementById("now").style.left =
-    progressPos + "%";
+    wdToPosition(CURRENT_WD) + "%";
 
-  // cards
-  let div=document.getElementById("cards");
-  div.innerHTML="";
+  const div = document.getElementById("cards");
+  div.innerHTML = "";
 
   final.forEach(d=>{
-    let el=document.createElement("div");
+    const el = document.createElement("div");
     el.className="card";
-    el.innerText=d.process+" → "+d.expected+"%";
+    el.innerText = d.process + " → " + d.expected + "%";
     div.appendChild(el);
   });
 
@@ -171,4 +162,3 @@ fetch("monitor_data.csv")
 
 </body>
 </html>
-``
