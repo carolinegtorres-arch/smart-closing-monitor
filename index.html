@@ -1,108 +1,143 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Smart Closing Monitor</title>
+<title>SMART CLOSING – EXECUTION MONITOR</title>
 
-  <style>
-    body {
-      background:#0b0f14;
-      color:white;
-      font-family:Arial;
-      padding:20px;
-    }
+<style>
+body {
+  background:#0b0f14;
+  color:white;
+  font-family:Arial;
+  padding:20px;
+}
 
-    h1 { margin-bottom:20px; }
+h1 {margin-bottom:10px;}
 
-    .kpi {
-      font-size:24px;
-      margin-bottom:30px;
-    }
+.kpi {
+  font-size:20px;
+  margin-bottom:20px;
+}
 
-    .timeline {
-      position:relative;
-      height:120px;
-      border-top:2px solid #888;
-      margin-bottom:40px;
-    }
+/* TIMELINE */
+.timeline {
+  position:relative;
+  height:180px;
+  border-top:2px solid #888;
+  margin-top:40px;
+}
 
-    .progress {
-      position:absolute;
-      top:-2px;
-      height:3px;
-      background:#00c3ff;
-      width:0%;
-    }
+/* progresso */
+.progress {
+  position:absolute;
+  top:-2px;
+  height:4px;
+  background:#00c3ff;
+  width:0%;
+}
 
-    .now {
-      position:absolute;
-      top:-10px;
-      border-left:3px solid #00c3ff;
-      height:100px;
-    }
+/* NOW */
+.now {
+  position:absolute;
+  top:-20px;
+  border-left:3px solid #00c3ff;
+  height:140px;
+}
 
-    .label {
-      position:absolute;
-      top:15px;
-      font-size:12px;
-    }
+.now label {
+  position:absolute;
+  top:-20px;
+  left:-10px;
+  font-size:12px;
+}
 
-    .card {
-      background:#111;
-      padding:10px;
-      margin-bottom:10px;
-    }
-  </style>
+/* labels WD */
+.wd {
+  position:absolute;
+  top:20px;
+  font-size:12px;
+}
+
+/* EVENTOS */
+.event {
+  position:absolute;
+  top:80px;
+  padding:8px 10px;
+  border-radius:6px;
+  font-size:12px;
+}
+
+.red { background:#e74c3c; }
+.orange { background:#f39c12; }
+.blue { background:#34495e; }
+</style>
+
 </head>
 
 <body>
 
 <h1>SMART CLOSING – EXECUTION MONITOR</h1>
 
-<div class="kpi" id="kpi">Loading...</div>
+<div id="kpi" class="kpi">Loading...</div>
 
 <div class="timeline">
+
   <div id="progress" class="progress"></div>
-  <div id="now" class="now"></div>
 
-  <div class="label" style="left:0%">WD-3</div>
-  <div class="label" style="left:20%">WD-1</div>
-  <div class="label" style="left:40%">WD1</div>
-  <div class="label" style="left:55%">WD2</div>
-  <div class="label" style="left:70%">WD3</div>
-  <div class="label" style="left:85%">WD4</div>
+  <div id="now" class="now">
+    <label>NOW</label>
+  </div>
+
+  <!-- WD labels -->
+  <div class="wd" style="left:0%">WD-3</div>
+  <div class="wd" style="left:15%">WD-1</div>
+  <div class="wd" style="left:30%">WD1</div>
+  <div class="wd" style="left:45%">WD2</div>
+  <div class="wd" style="left:60%">WD3</div>
+  <div class="wd" style="left:75%">WD4</div>
+  <div class="wd" style="left:90%">WD5</div>
+
+  <!-- EVENTS (wireframe original) -->
+  <div class="event orange" style="left:5%">Pre-Close Checks</div>
+  <div class="event red" style="left:15%">Data Load</div>
+  <div class="event red" style="left:30%">Accruals</div>
+  <div class="event orange" style="left:55%">Consolidation</div>
+  <div class="event blue" style="left:75%">Reporting</div>
+
 </div>
-
-<div id="cards"></div>
 
 <script>
 
+// CONFIG
 const CURRENT_WD = 3;
 
-// mapa posição timeline
+// WD → posição visual
 function wdToPosition(wd){
   const map = {
     "-3":0,
     "-2":5,
-    "-1":10,
-    "1":40,
-    "2":55,
-    "3":70,
-    "4":85,
-    "5":95
+    "-1":15,
+    "1":30,
+    "2":45,
+    "3":60,
+    "4":75,
+    "5":90
   };
-  return map[wd] ?? 0;
+  return map[String(wd)] ?? 0;
 }
 
+// carregar CSV
 fetch("monitor_data.csv")
 .then(r=>r.text())
 .then(text=>{
 
-  const rows = text.trim().split(/\\r?\\n/);
-  rows.shift();
+  const rows = text.split(/\r?\n/);
 
-  const data = [];
+  let data = [];
 
   rows.forEach(row=>{
+
+    if(!row || row.trim()==="") return;
+
     const parts = row.split(",");
 
     if(parts.length < 3) return;
@@ -116,7 +151,8 @@ fetch("monitor_data.csv")
     data.push({process, wd, expected});
   });
 
-  const latest = {};
+  // pegar último WD por processo
+  let latest = {};
 
   data.forEach(d=>{
     if(d.wd <= CURRENT_WD){
@@ -126,35 +162,29 @@ fetch("monitor_data.csv")
     }
   });
 
-  const final = Object.values(latest);
+  let final = Object.values(latest);
 
   if(final.length === 0){
     document.getElementById("kpi").innerText = "Sem dados";
     return;
   }
 
-  const global = Math.round(
+  // KPI
+  let global = Math.round(
     final.reduce((s,d)=>s+d.expected,0) / final.length
   );
 
   document.getElementById("kpi").innerText =
-    "Expected: " + global + "%";
+    "Expected Progress: " + global + "%";
 
-  document.getElementById("progress").style.width =
-    global + "%";
+  // TIMELINE
+  let pos = wdToPosition(CURRENT_WD);
 
-  document.getElementById("now").style.left =
-    wdToPosition(CURRENT_WD) + "%";
+  // progresso até WD atual
+  document.getElementById("progress").style.width = pos + "%";
 
-  const div = document.getElementById("cards");
-  div.innerHTML = "";
-
-  final.forEach(d=>{
-    const el = document.createElement("div");
-    el.className="card";
-    el.innerText = d.process + " → " + d.expected + "%";
-    div.appendChild(el);
-  });
+  // NOW
+  document.getElementById("now").style.left = pos + "%";
 
 });
 
@@ -162,3 +192,4 @@ fetch("monitor_data.csv")
 
 </body>
 </html>
+``
