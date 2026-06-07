@@ -12,11 +12,6 @@
       padding:20px;
     }
 
-    h1 {
-      margin-bottom:20px;
-    }
-
-    /* KPI */
     .kpi {
       background:#111;
       padding:20px;
@@ -24,12 +19,6 @@
       margin-bottom:20px;
     }
 
-    .kpi-value {
-      font-size:32px;
-      font-weight:bold;
-    }
-
-    /* TIMELINE */
     .timeline {
       position:relative;
       height:120px;
@@ -49,7 +38,6 @@
       top:75px;
       width:0%;
       border-top:3px solid #00c3ff;
-      transition:0.5s;
     }
 
     .now {
@@ -60,7 +48,6 @@
       left:65%;
     }
 
-    /* CARDS */
     .grid {
       display:grid;
       grid-template-columns:repeat(3,1fr);
@@ -82,136 +69,97 @@
     .green { background:#2ecc71; }
     .yellow { background:#f39c12; }
     .red { background:#e74c3c; }
-
-    /* ACTION */
-    .actions {
-      background:#111;
-      padding:20px;
-      border-radius:10px;
-      margin-top:30px;
-    }
   </style>
 </head>
 
 <body>
 
-<h1>Smart Closing Monitor (Expected)</h1>
+<h1>Smart Closing Monitor</h1>
 
-<!-- KPI -->
 <div class="kpi">
-  <div id="expectedLabel">Global Expected</div>
-  <div class="kpi-value" id="globalExpected">--%</div>
+  <div id="label">Loading...</div>
+  <div id="global">--%</div>
 </div>
 
-<!-- TIMELINE -->
 <div class="timeline">
   <div class="expected-line"></div>
-  <div class="actual-line" id="actualLine"></div>
-
-  <div class="now">
-    <div style="position:absolute;top:-25px;color:#00c3ff;">NOW</div>
-  </div>
+  <div id="actual" class="actual-line"></div>
+  <div class="now"></div>
 </div>
 
-<!-- CARDS -->
-<div class="grid" id="cards"></div>
-
-<!-- ACTION -->
-<div class="actions">
-  <h3>Where to Act Now</h3>
-  <ul id="actions"></ul>
-</div>
+<div id="cards" class="grid"></div>
 
 <script>
 
 const CURRENT_WD = 3;
 
-// cor
-function getColor(value) {
-  if (value >= 75) return "green";
-  if (value >= 55) return "yellow";
+function getColor(v){
+  if(v>=75)return "green";
+  if(v>=55)return "yellow";
   return "red";
 }
 
-// ✅ LER CSV
 fetch("monitor_data.csv")
-  .then(res => res.text())
-  .then(text => {
+.then(r=>r.text())
+.then(text=>{
 
-    // ✅ quebra correta (resolve GitHub + Excel)
-    const rows = text.match(/[^\r\n]+/g);
+  const rows = text.trim().split(/\\r?\\n/);
+  rows.shift();
 
-    rows.shift(); // remove header
+  const parsed = [];
 
-    const parsed = [];
+  rows.forEach(r=>{
+    const c = r.split(",");
+    if(c.length<3)return;
 
-    rows.forEach(row => {
-      const parts = row.split(",");
+    const p = c[0].trim();
+    const wd = parseInt(c[1]);
+    const ex = parseFloat(c[2]);
 
-    // ✅ lógica WD
-    const data = Object.values(
-      parsed
-        .filter(d => d.WD <= CURRENT_WD)
-        .reduce((acc, curr) => {
-          if (!acc[curr.process] || curr.WD > acc[curr.process].WD) {
-            acc[curr.process] = curr;
-          }
-          return acc;
-        }, {})
-    );
+    if(!p || isNaN(wd)||isNaN(ex))return;
 
-    // ✅ GLOBAL
-    const global = Math.round(
-      data.reduce((acc, d) => acc + d.expected, 0) / data.length
-    );
-
-    document.getElementById("globalExpected").innerText = global + "%";
-    document.getElementById("expectedLabel").innerText =
-      "Global Expected (WD" + CURRENT_WD + ")";
-
-    // ✅ TIMELINE
-    const timeline = document.getElementById("actualLine");
-    timeline.style.width = global + "%";
-
-    // ✅ CARDS
-    const container = document.getElementById("cards");
-    container.innerHTML = "";
-
-    data.forEach(d => {
-
-      const color = getColor(d.expected);
-
-      const card = document.createElement("div");
-      card.className = "card";
-
-      card.innerHTML = `
-        <div><strong>${d.process}</strong></div>
-        <div>${d.expected}%</div>
-        <div class="bar ${color}" style="width:${d.expected}%"></div>
-        <div style="font-size:10px;color:#aaa;margin-top:5px;">
-          WD base: ${d.WD}
-        </div>
-      `;
-
-      container.appendChild(card);
-    });
-
-    // ✅ ACTIONS
-    const actions = document.getElementById("actions");
-    actions.innerHTML = "";
-
-    data
-      .filter(d => d.expected < 55)
-      .forEach(d => {
-        const item = document.createElement("li");
-        item.innerText = `${d.process} abaixo do esperado (${d.expected}%)`;
-        actions.appendChild(item);
-      });
-
+    parsed.push({process:p, WD:wd, expected:ex});
   });
+
+  const data = Object.values(
+    parsed.filter(d=>d.WD<=CURRENT_WD)
+    .reduce((a,c)=>{
+      if(!a[c.process] || c.WD>a[c.process].WD){
+        a[c.process]=c;
+      }
+      return a;
+    },{})
+  );
+
+  const global = Math.round(
+    data.reduce((a,c)=>a+c.expected,0)/data.length
+  );
+
+  document.getElementById("global").innerText = global+"%";
+  document.getElementById("label").innerText = 
+    "Expected (WD "+CURRENT_WD+")";
+
+  document.getElementById("actual").style.width = global+"%";
+
+  const div = document.getElementById("cards");
+  div.innerHTML = "";
+
+  data.forEach(d=>{
+    const card = document.createElement("div");
+    card.className="card";
+
+    card.innerHTML = `
+      <b>${d.process}</b><br>
+      ${d.expected}% 
+      <div class="bar ${getColor(d.expected)}" style="width:${d.expected}%"></div>
+    `;
+
+    div.appendChild(card);
+  });
+
+});
 
 </script>
 
 </body>
 </html>
-
