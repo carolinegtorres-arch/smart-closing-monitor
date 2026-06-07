@@ -3,62 +3,55 @@
 <head>
   <title>Smart Closing Monitor</title>
 
-<style>
-body {
-  background:#0b0f14;
-  color:white;
-  font-family:Arial;
-  padding:20px;
-}
+  <style>
+    body {
+      background:#0b0f14;
+      color:white;
+      font-family:Arial;
+      padding:20px;
+    }
 
-h1 {
-  margin-bottom:20px;
-}
+    h1 { margin-bottom:20px; }
 
-.kpi {
-  font-size:24px;
-  margin-bottom:30px;
-}
+    .kpi {
+      font-size:24px;
+      margin-bottom:30px;
+    }
 
-/* TIMELINE */
-.timeline {
-  position:relative;
-  height:120px;
-  border-top:2px solid #888;
-  margin-bottom:40px;
-}
+    .timeline {
+      position:relative;
+      height:120px;
+      border-top:2px solid #888;
+      margin-bottom:40px;
+    }
 
-/* progresso */
-.progress {
-  position:absolute;
-  top:-2px;
-  height:3px;
-  background:#00c3ff;
-  width:0%;
-}
+    .progress {
+      position:absolute;
+      top:-2px;
+      height:3px;
+      background:#00c3ff;
+      width:0%;
+    }
 
-/* linha NOW */
-.now {
-  position:absolute;
-  top:-10px;
-  border-left:3px solid #00c3ff;
-  height:100px;
-}
+    .now {
+      position:absolute;
+      top:-10px;
+      border-left:3px solid #00c3ff;
+      height:100px;
+    }
 
-/* labels */
-.label {
-  position:absolute;
-  top:20px;
-  font-size:12px;
-}
+    .label {
+      position:absolute;
+      top:15px;
+      font-size:12px;
+    }
 
-/* CARDS */
-.card {
-  background:#111;
-  padding:10px;
-  margin-bottom:10px;
-}
-</style>
+    .card {
+      background:#111;
+      padding:10px;
+      margin-bottom:10px;
+    }
+  </style>
 </head>
 
 <body>
@@ -85,7 +78,7 @@ h1 {
 
 const CURRENT_WD = 3;
 
-// posição do NOW
+// mapa posição timeline
 function wdToPosition(wd){
   const map = {
     "-3":0,
@@ -104,21 +97,23 @@ fetch("monitor_data.csv")
 .then(r=>r.text())
 .then(text=>{
 
-  const rows = text.trim().split(/\r?\n/);
+  const rows = text.trim().split(/\\r?\\n/);
   rows.shift();
 
   const data = [];
 
   rows.forEach(row=>{
-    const p = row.split(",");
+    const parts = row.split(",");
 
-    if(p.length < 3) return;
+    if(parts.length < 3) return;
 
-    data.push({
-      process: p[0].trim(),
-      wd: Number(p[1]),
-      expected: Number(p[2])
-    });
+    const process = parts[0].trim();
+    const wd = Number(parts[1]);
+    const expected = Number(parts[2]);
+
+    if(isNaN(wd) || isNaN(expected)) return;
+
+    data.push({process, wd, expected});
   });
 
   const latest = {};
@@ -132,6 +127,11 @@ fetch("monitor_data.csv")
   });
 
   const final = Object.values(latest);
+
+  if(final.length === 0){
+    document.getElementById("kpi").innerText = "Sem dados";
+    return;
+  }
 
   const global = Math.round(
     final.reduce((s,d)=>s+d.expected,0) / final.length
@@ -151,7 +151,7 @@ fetch("monitor_data.csv")
 
   final.forEach(d=>{
     const el = document.createElement("div");
-    el.className = "card";
+    el.className="card";
     el.innerText = d.process + " → " + d.expected + "%";
     div.appendChild(el);
   });
