@@ -11,59 +11,52 @@ body {
   padding:20px;
 }
 
-/* KPI */
-.kpi {
+h1 {
   margin-bottom:20px;
-  font-size:20px;
+}
+
+.kpi {
+  font-size:24px;
+  margin-bottom:30px;
 }
 
 /* TIMELINE */
 .timeline {
   position:relative;
-  height:140px;
-  margin:40px 0;
-}
-
-/* linha base */
-.axis {
-  position:absolute;
-  top:70px;
-  width:100%;
+  height:120px;
   border-top:2px solid #888;
+  margin-bottom:40px;
 }
 
-/* linha progress */
+/* progresso */
 .progress {
   position:absolute;
-  top:72px;
-  border-top:4px solid #00c3ff;
+  top:-2px;
+  height:3px;
+  background:#00c3ff;
   width:0%;
 }
 
-/* marcador NOW */
+/* linha NOW */
 .now {
   position:absolute;
-  top:20px;
+  top:-10px;
   border-left:3px solid #00c3ff;
   height:100px;
 }
 
-/* WD labels */
-.wd {
+/* labels */
+.label {
   position:absolute;
-  top:90px;
+  top:20px;
   font-size:12px;
 }
 
 /* CARDS */
-.cards {
-  margin-top:30px;
-}
-
 .card {
-  margin:10px 0;
-  padding:10px;
   background:#111;
+  padding:10px;
+  margin-bottom:10px;
 }
 </style>
 </head>
@@ -75,39 +68,34 @@ body {
 <div class="kpi" id="kpi">Loading...</div>
 
 <div class="timeline">
+  <div id="progress" class="progress"></div>
+  <div id="now" class="now"></div>
 
-  <div class="axis"></div>
-  <div class="progress" id="progress"></div>
-  <div class="now" id="now"></div>
-
-  <!-- labels WD -->
-  <div class="wd" style="left:0%">WD-3</div>
-  <div class="wd" style="left:15%">WD-1</div>
-  <div class="wd" style="left:30%">WD1</div>
-  <div class="wd" style="left:45%">WD2</div>
-  <div class="wd" style="left:60%">WD3</div>
-  <div class="wd" style="left:75%">WD4</div>
-  <div class="wd" style="left:90%">WD5</div>
-
+  <div class="label" style="left:0%">WD-3</div>
+  <div class="label" style="left:20%">WD-1</div>
+  <div class="label" style="left:40%">WD1</div>
+  <div class="label" style="left:55%">WD2</div>
+  <div class="label" style="left:70%">WD3</div>
+  <div class="label" style="left:85%">WD4</div>
 </div>
 
-<div class="cards" id="cards"></div>
+<div id="cards"></div>
 
 <script>
 
 const CURRENT_WD = 3;
 
-// mapa simples WD -> posição (%) na timeline
-function wdToPercent(wd){
+// posição do NOW
+function wdToPosition(wd){
   const map = {
     "-3":0,
     "-2":5,
     "-1":10,
-    "1":30,
-    "2":45,
-    "3":60,
-    "4":70,
-    "5":80
+    "1":40,
+    "2":55,
+    "3":70,
+    "4":85,
+    "5":95
   };
   return map[wd] ?? 0;
 }
@@ -116,7 +104,7 @@ fetch("monitor_data.csv")
 .then(r=>r.text())
 .then(text=>{
 
-  const rows = text.trim().split(/\\r?\\n/);
+  const rows = text.trim().split(/\r?\n/);
   rows.shift();
 
   const data = [];
@@ -124,7 +112,7 @@ fetch("monitor_data.csv")
   rows.forEach(row=>{
     const p = row.split(",");
 
-    if(p.length<3) return;
+    if(p.length < 3) return;
 
     data.push({
       process: p[0].trim(),
@@ -133,7 +121,6 @@ fetch("monitor_data.csv")
     });
   });
 
-  // pegar último WD válido
   const latest = {};
 
   data.forEach(d=>{
@@ -146,31 +133,27 @@ fetch("monitor_data.csv")
 
   const final = Object.values(latest);
 
-  // KPI
   const global = Math.round(
-    final.reduce((s,d)=>s+d.expected,0)/final.length
+    final.reduce((s,d)=>s+d.expected,0) / final.length
   );
 
   document.getElementById("kpi").innerText =
-    "Expected: "+global+"%";
+    "Expected: " + global + "%";
 
-  // timeline progress
   document.getElementById("progress").style.width =
     global + "%";
 
-  // posição NOW
   document.getElementById("now").style.left =
-    wdToPercent(CURRENT_WD) + "%";
+    wdToPosition(CURRENT_WD) + "%";
 
-  // cards
   const div = document.getElementById("cards");
   div.innerHTML = "";
 
   final.forEach(d=>{
-    const c = document.createElement("div");
-    c.className="card";
-    c.innerText = d.process + " → " + d.expected + "%";
-    div.appendChild(c);
+    const el = document.createElement("div");
+    el.className = "card";
+    el.innerText = d.process + " → " + d.expected + "%";
+    div.appendChild(el);
   });
 
 });
