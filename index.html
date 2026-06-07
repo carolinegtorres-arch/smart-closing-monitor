@@ -79,21 +79,25 @@
 
 const CURRENT_WD = 3;
 
-// cores
 function getColor(value) {
   if (value >= 75) return "green";
   if (value >= 55) return "yellow";
   return "red";
 }
 
-fetch("monitor_data.csv")
+fetch("./public/monitor_data.csv")
   .then(res => res.text())
   .then(text => {
 
     console.log("RAW:", text);
 
-    // ✅ quebra correta de linhas (resolve Excel bug)
-    const rows = text.split(/\r?\n/);
+    // ✅ QUEBRA LINHAS FORÇADA (principal correção)
+    const rows = text
+      .replace(/\r\n/g, "\n")
+      .replace(/\r/g, "\n")
+      .split("\n");
+
+    console.log("ROWS:", rows);
 
     // remove header
     rows.shift();
@@ -102,31 +106,27 @@ fetch("monitor_data.csv")
 
     rows.forEach(row => {
 
-      // ignora linhas vazias
       if (!row || row.trim() === "") return;
 
-      // separa corretamente colunas
+      // ✅ DIVIDE CORRETAMENTE EM COLUNAS
       const parts = row.split(",");
 
-      if (parts.length < 3) return;
-
-      const process = parts[0].trim();
-      const wd = Number(parts[1]);
-      const expected = Number(parts[2]);
-
-      if (!process || isNaN(wd) || isNaN(expected)) return;
+      if (parts.length < 3) {
+        console.log("linha ignorada:", row);
+        return;
+      }
 
       parsed.push({
-        process,
-        WD: wd,
-        expected
+        process: parts[0].trim(),
+        WD: parseInt(parts[1]),
+        expected: parseFloat(parts[2])
       });
 
     });
 
     console.log("PARSED OK:", parsed);
 
-    // ✅ lógica de WD
+    // ✅ LÓGICA WD
     const data = Object.values(
       parsed
         .filter(d => d.WD <= CURRENT_WD)
@@ -145,14 +145,14 @@ fetch("monitor_data.csv")
       return;
     }
 
-    // ✅ global
+    // ✅ GLOBAL
     const global = Math.round(
       data.reduce((acc, d) => acc + d.expected, 0) / data.length
     );
 
     document.getElementById("globalExpected").innerText = global + "%";
 
-    // ✅ limpar UI
+    // ✅ RENDER
     const container = document.getElementById("cards");
     container.innerHTML = "";
 
@@ -175,7 +175,7 @@ fetch("monitor_data.csv")
       container.appendChild(card);
     });
 
-    // ✅ ações
+    // ✅ ACTIONS
     const actions = document.getElementById("actions");
     actions.innerHTML = "";
 
