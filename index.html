@@ -8,67 +8,14 @@
       background:#0b0f14;
       color:white;
       font-family:Arial;
-      margin:0;
       padding:20px;
-    }
-
-    .kpi {
-      background:#111;
-      padding:20px;
-      border-radius:10px;
-      margin-bottom:20px;
-    }
-
-    .timeline {
-      position:relative;
-      height:120px;
-      margin:40px 0;
-      border-top:2px solid #aaa;
-    }
-
-    .expected-line {
-      position:absolute;
-      top:60px;
-      width:100%;
-      border-top:2px dashed #888;
-    }
-
-    .actual-line {
-      position:absolute;
-      top:75px;
-      width:0%;
-      border-top:3px solid #00c3ff;
-    }
-
-    .now {
-      position:absolute;
-      top:-10px;
-      border-left:3px solid #00c3ff;
-      height:100px;
-      left:65%;
-    }
-
-    .grid {
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:20px;
     }
 
     .card {
       background:#111;
       padding:15px;
-      border-radius:10px;
+      margin:10px 0;
     }
-
-    .bar {
-      height:6px;
-      border-radius:3px;
-      margin-top:10px;
-    }
-
-    .green { background:#2ecc71; }
-    .yellow { background:#f39c12; }
-    .red { background:#e74c3c; }
   </style>
 </head>
 
@@ -76,85 +23,61 @@
 
 <h1>Smart Closing Monitor</h1>
 
-<div class="kpi">
-  <div id="label">Loading...</div>
-  <div id="global">--%</div>
-</div>
+<h2 id="global">Carregando...</h2>
 
-<div class="timeline">
-  <div class="expected-line"></div>
-  <div id="actual" class="actual-line"></div>
-  <div class="now"></div>
-</div>
-
-<div id="cards" class="grid"></div>
+<div id="cards"></div>
 
 <script>
 
-const CURRENT_WD = 3;
-
-function getColor(v){
-  if(v>=75)return "green";
-  if(v>=55)return "yellow";
-  return "red";
-}
-
 fetch("monitor_data.csv")
-.then(r=>r.text())
-.then(text=>{
+.then(res => res.text())
+.then(text => {
 
-  const rows = text.trim().split(/\\r?\\n/);
-  rows.shift();
+  const rows = text.trim().split(/\r?\n/);
+  rows.shift(); // remove header
 
-  const parsed = [];
+  const data = [];
 
-  rows.forEach(r=>{
-    const c = r.split(",");
-    if(c.length<3)return;
+  rows.forEach(row => {
+    const parts = row.split(",");
 
-    const p = c[0].trim();
-    const wd = parseInt(c[1]);
-    const ex = parseFloat(c[2]);
+    if(parts.length < 3) return;
 
-    if(!p || isNaN(wd)||isNaN(ex))return;
-
-    parsed.push({process:p, WD:wd, expected:ex});
+    data.push({
+      process: parts[0],
+      wd: parseInt(parts[1]),
+      expected: parseFloat(parts[2])
+    });
   });
 
-  const data = Object.values(
-    parsed.filter(d=>d.WD<=CURRENT_WD)
-    .reduce((a,c)=>{
-      if(!a[c.process] || c.WD>a[c.process].WD){
-        a[c.process]=c;
+  const CURRENT_WD = 3;
+
+  const latest = {};
+
+  data.forEach(d => {
+    if(d.wd <= CURRENT_WD){
+      if(!latest[d.process] || d.wd > latest[d.process].wd){
+        latest[d.process] = d;
       }
-      return a;
-    },{})
-  );
+    }
+  });
+
+  const final = Object.values(latest);
 
   const global = Math.round(
-    data.reduce((a,c)=>a+c.expected,0)/data.length
+    final.reduce((s,d)=>s+d.expected,0) / final.length
   );
 
-  document.getElementById("global").innerText = global+"%";
-  document.getElementById("label").innerText = 
-    "Expected (WD "+CURRENT_WD+")";
-
-  document.getElementById("actual").style.width = global+"%";
+  document.getElementById("global").innerText =
+    "Expected: " + global + "%";
 
   const div = document.getElementById("cards");
-  div.innerHTML = "";
 
-  data.forEach(d=>{
-    const card = document.createElement("div");
-    card.className="card";
-
-    card.innerHTML = `
-      <b>${d.process}</b><br>
-      ${d.expected}% 
-      <div class="bar ${getColor(d.expected)}" style="width:${d.expected}%"></div>
-    `;
-
-    div.appendChild(card);
+  final.forEach(d => {
+    const el = document.createElement("div");
+    el.className = "card";
+    el.innerText = d.process + " → " + d.expected + "%";
+    div.appendChild(el);
   });
 
 });
