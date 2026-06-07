@@ -77,32 +77,44 @@
 
 <script>
 
-const CURRENT_WD = 3; // 👈 ajuste aqui conforme o dia do fechamento
+const CURRENT_WD = 3;
 
+// função cor
 function getColor(value) {
   if (value >= 75) return "green";
   if (value >= 55) return "yellow";
   return "red";
 }
 
-// 👉 PUXAR CSV do GitHub
 fetch("monitor_data.csv")
   .then(response => response.text())
   .then(text => {
 
-    const rows = text.split("\n").slice(1);
+    console.log("RAW CSV:", text);
+
+    // ✅ remover caracteres estranhos
+    const cleanText = text.replace(/\r/g, "");
+
+    const rows = cleanText.split("\n").slice(1);
 
     const parsed = rows.map(row => {
-      const [process, wd, expected] = row.split(",");
+
+      // ✅ dividir por vírgula OU múltiplos espaços
+      const cols = row.split(/,|\t/);
+
+      if (cols.length < 3) return null;
 
       return {
-        process: process?.trim(),
-        WD: Number(wd),
-        expected: Number(expected)
+        process: cols[0]?.trim(),
+        WD: Number(cols[1]),
+        expected: Number(cols[2])
       };
-    });
 
-    // ✅ pegar o último WD válido por processo
+    }).filter(d => d && d.process && !isNaN(d.WD) && !isNaN(d.expected));
+
+    console.log("PARSED:", parsed);
+
+    // ✅ lógica WD
     const data = Object.values(
       parsed
         .filter(d => d.WD <= CURRENT_WD)
@@ -114,17 +126,21 @@ fetch("monitor_data.csv")
         }, {})
     );
 
-    // ✅ calcular global
+    console.log("FINAL:", data);
+
+    // ✅ GLOBAL
     const global = Math.round(
       data.reduce((acc, d) => acc + d.expected, 0) / data.length
     );
 
     document.getElementById("globalExpected").innerText = global + "%";
 
-    // ✅ montar cards
+    // ✅ limpar antes de renderizar
     const container = document.getElementById("cards");
+    container.innerHTML = "";
 
     data.forEach(d => {
+
       const color = getColor(d.expected);
 
       const card = document.createElement("div");
@@ -144,6 +160,7 @@ fetch("monitor_data.csv")
 
     // ✅ ações
     const actions = document.getElementById("actions");
+    actions.innerHTML = "";
 
     data
       .filter(d => d.expected < 55)
