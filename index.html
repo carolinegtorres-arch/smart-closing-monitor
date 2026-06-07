@@ -79,42 +79,54 @@
 
 const CURRENT_WD = 3;
 
-// função cor
+// cores
 function getColor(value) {
   if (value >= 75) return "green";
   if (value >= 55) return "yellow";
   return "red";
 }
 
-fetch("monitor_data.csv")
-  .then(response => response.text())
+fetch("./public/monitor_data.csv")
+  .then(res => res.text())
   .then(text => {
 
-    console.log("RAW CSV:", text);
+    console.log("RAW:", text);
 
-    // ✅ remover caracteres estranhos
-    const cleanText = text.replace(/\r/g, "");
+    // ✅ quebra correta de linhas (resolve Excel bug)
+    const rows = text.split(/\r?\n/);
 
-    const rows = cleanText.split("\n").slice(1);
+    // remove header
+    rows.shift();
 
-    const parsed = rows.map(row => {
+    const parsed = [];
 
-      // ✅ dividir por vírgula OU múltiplos espaços
-      const cols = row.split(/,|\t/);
+    rows.forEach(row => {
 
-      if (cols.length < 3) return null;
+      // ignora linhas vazias
+      if (!row || row.trim() === "") return;
 
-      return {
-        process: cols[0]?.trim(),
-        WD: Number(cols[1]),
-        expected: Number(cols[2])
-      };
+      // separa corretamente colunas
+      const parts = row.split(",");
 
-    }).filter(d => d && d.process && !isNaN(d.WD) && !isNaN(d.expected));
+      if (parts.length < 3) return;
 
-    console.log("PARSED:", parsed);
+      const process = parts[0].trim();
+      const wd = Number(parts[1]);
+      const expected = Number(parts[2]);
 
-    // ✅ lógica WD
+      if (!process || isNaN(wd) || isNaN(expected)) return;
+
+      parsed.push({
+        process,
+        WD: wd,
+        expected
+      });
+
+    });
+
+    console.log("PARSED OK:", parsed);
+
+    // ✅ lógica de WD
     const data = Object.values(
       parsed
         .filter(d => d.WD <= CURRENT_WD)
@@ -128,14 +140,19 @@ fetch("monitor_data.csv")
 
     console.log("FINAL:", data);
 
-    // ✅ GLOBAL
+    if (data.length === 0) {
+      document.getElementById("globalExpected").innerText = "No data";
+      return;
+    }
+
+    // ✅ global
     const global = Math.round(
       data.reduce((acc, d) => acc + d.expected, 0) / data.length
     );
 
     document.getElementById("globalExpected").innerText = global + "%";
 
-    // ✅ limpar antes de renderizar
+    // ✅ limpar UI
     const container = document.getElementById("cards");
     container.innerHTML = "";
 
