@@ -5,56 +5,90 @@
 
   <style>
     body {
-      background: #0b0f14;
-      color: white;
-      font-family: Arial;
-      margin: 0;
-      padding: 20px;
+      background:#0b0f14;
+      color:white;
+      font-family:Arial;
+      margin:0;
+      padding:20px;
     }
 
     h1 {
-      margin-bottom: 20px;
+      margin-bottom:20px;
     }
 
+    /* KPI */
     .kpi {
-      background: #111;
-      padding: 20px;
-      border-radius: 10px;
-      margin-bottom: 30px;
+      background:#111;
+      padding:20px;
+      border-radius:10px;
+      margin-bottom:20px;
     }
 
     .kpi-value {
-      font-size: 32px;
-      font-weight: bold;
+      font-size:32px;
+      font-weight:bold;
     }
 
+    /* TIMELINE */
+    .timeline {
+      position:relative;
+      height:120px;
+      margin:40px 0;
+      border-top:2px solid #aaa;
+    }
+
+    .expected-line {
+      position:absolute;
+      top:60px;
+      width:100%;
+      border-top:2px dashed #888;
+    }
+
+    .actual-line {
+      position:absolute;
+      top:75px;
+      width:0%;
+      border-top:3px solid #00c3ff;
+      transition:0.5s;
+    }
+
+    .now {
+      position:absolute;
+      top:-10px;
+      border-left:3px solid #00c3ff;
+      height:100px;
+      left:65%;
+    }
+
+    /* CARDS */
     .grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:20px;
     }
 
     .card {
-      background: #111;
-      padding: 15px;
-      border-radius: 10px;
+      background:#111;
+      padding:15px;
+      border-radius:10px;
     }
 
     .bar {
-      height: 6px;
-      border-radius: 3px;
-      margin-top: 10px;
+      height:6px;
+      border-radius:3px;
+      margin-top:10px;
     }
 
-    .green { background: #2ecc71; }
-    .yellow { background: #f39c12; }
-    .red { background: #e74c3c; }
+    .green { background:#2ecc71; }
+    .yellow { background:#f39c12; }
+    .red { background:#e74c3c; }
 
+    /* ACTION */
     .actions {
-      background: #111;
-      padding: 20px;
-      border-radius: 10px;
-      margin-top: 30px;
+      background:#111;
+      padding:20px;
+      border-radius:10px;
+      margin-top:30px;
     }
   </style>
 </head>
@@ -63,13 +97,26 @@
 
 <h1>Smart Closing Monitor (Expected)</h1>
 
+<!-- KPI -->
 <div class="kpi">
-  <div>Global Expected (WD atual)</div>
+  <div id="expectedLabel">Global Expected</div>
   <div class="kpi-value" id="globalExpected">--%</div>
 </div>
 
+<!-- TIMELINE -->
+<div class="timeline">
+  <div class="expected-line"></div>
+  <div class="actual-line" id="actualLine"></div>
+
+  <div class="now">
+    <div style="position:absolute;top:-25px;color:#00c3ff;">NOW</div>
+  </div>
+</div>
+
+<!-- CARDS -->
 <div class="grid" id="cards"></div>
 
+<!-- ACTION -->
 <div class="actions">
   <h3>Where to Act Now</h3>
   <ul id="actions"></ul>
@@ -79,30 +126,26 @@
 
 const CURRENT_WD = 3;
 
+// cor
 function getColor(value) {
   if (value >= 75) return "green";
   if (value >= 55) return "yellow";
   return "red";
 }
 
+// ✅ LER CSV
 fetch("monitor_data.csv")
   .then(res => res.text())
   .then(text => {
 
-    console.log("RAW:", text);
-
-    // ✅ FORÇA QUEBRA DE LINHAS (qualquer formato)
+    // ✅ quebra correta (resolve GitHub + Excel)
     const rows = text.match(/[^\r\n]+/g);
 
-    console.log("ROWS:", rows);
-
-    // remove header
-    rows.shift();
+    rows.shift(); // remove header
 
     const parsed = [];
 
     rows.forEach(row => {
-
       const parts = row.split(",");
 
       if (parts.length < 3) return;
@@ -118,10 +161,7 @@ fetch("monitor_data.csv")
         WD: wd,
         expected
       });
-
     });
-
-    console.log("PARSED OK:", parsed);
 
     // ✅ lógica WD
     const data = Object.values(
@@ -135,21 +175,20 @@ fetch("monitor_data.csv")
         }, {})
     );
 
-    console.log("FINAL:", data);
-
-    if (data.length === 0) {
-      document.getElementById("globalExpected").innerText = "No data";
-      return;
-    }
-
     // ✅ GLOBAL
     const global = Math.round(
       data.reduce((acc, d) => acc + d.expected, 0) / data.length
     );
 
     document.getElementById("globalExpected").innerText = global + "%";
+    document.getElementById("expectedLabel").innerText =
+      "Global Expected (WD" + CURRENT_WD + ")";
 
-    // ✅ limpar cards
+    // ✅ TIMELINE
+    const timeline = document.getElementById("actualLine");
+    timeline.style.width = global + "%";
+
+    // ✅ CARDS
     const container = document.getElementById("cards");
     container.innerHTML = "";
 
@@ -172,7 +211,7 @@ fetch("monitor_data.csv")
       container.appendChild(card);
     });
 
-    // ✅ ações
+    // ✅ ACTIONS
     const actions = document.getElementById("actions");
     actions.innerHTML = "";
 
@@ -190,3 +229,4 @@ fetch("monitor_data.csv")
 
 </body>
 </html>
+
